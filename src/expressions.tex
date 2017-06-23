@@ -120,14 +120,7 @@ int auto::* p1 = &S1::n; // \tcode{auto} deduced as \tcode{S1}
 int D::* p2 = &S1::n;    // error: \tcode{D} does not designate a placeholder type
 int C::* p3 = &S1::n;    // OK: \tcode{C} deduced as \tcode{S1}
 char C::* p4 = &S2::c;   // error: deduction fails because constraints are not satisfied
-
-void f(typename auto::X::Y);
-f(S1()); // error: \tcode{auto} cannot be deduced from \tcode{S1()}
-f<S3>(0); // OK
 \end{codeblock}
-In the declaration of \tcode{f}, the placeholder appears in a non-deduced 
-context (\cxxref{temp.deduct.type}). It may be replaced later through the
-explicit specification of template arguments.
 \exitexample
 \end{addedblock}
 \end{quote}
@@ -155,7 +148,7 @@ of the \grammarterm{lambda-declarator}.
 \rSec3[expr.prim.lambda.closure]{Closure types}
 
 Modify paragraph 3 so that the meaning of a generic lambda is defined 
-in terms of its abbreviated member function template call operator.
+in terms of its member function template call operator.
 
 \begin{quote}
 The closure type for a non-generic
@@ -193,7 +186,7 @@ with the name of the corresponding invented template-parameter.
 %
 \added{
 The closure type for a generic lambda has a public inline function call 
-operator member template that is an abbreviated function template whose 
+operator member template that is a function template whose
 parameters and return type are derived from the
 \grammarterm{lambda-expression}'s 
 \grammarterm{parameter-declaration-clause} and 
@@ -214,7 +207,7 @@ template<typename T> concept bool C = true;
 auto gl = [](C& a, C* b) { a = *b; }; // OK: denotes a generic lambda
 
 struct Fun {
-  auto operator()(C& a, C* b) const { a = *b; }
+  template<C T> auto operator()(T& a, T* b) const { a = *b; }
 } fun;
 \end{codeblock}
 \tcode{C} is a 
@@ -542,9 +535,9 @@ The \grammarterm{compound-requirement} in \tcode{C5}
 introduces two constraints: an expression constraint for \tcode{f(x)}, 
 and a deduction constraint requiring that overload resolution succeeds for the
 call \tcode{g(f(x))} where \tcode{g} is the following
-invented abbreviated function template.
+invented function template.
 \begin{codeblock}
-void g(const C&);
+template<C T> void g(const T&);
 \end{codeblock}
 \exitexample
 

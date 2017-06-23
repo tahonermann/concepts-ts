@@ -2,7 +2,7 @@
 %%
 %% Template constraints
 %%
-\setcounter{section}{9}
+\setcounter{section}{8}
 \rSec1[temp.constr]{Template constraints}
 
 Add this section after \cxxref{temp.deduct.guide} in the \Cpp standard.
@@ -390,8 +390,8 @@ by the \grammarterm{trailing-return-type}.
 
 \pnum
 To determine if an argument deduction constraint is satisfied, invent
-an abbreviated function template \tcode{f} with one parameter whose
-type is \tcode{T} (\ref{dcl.fct}). 
+a function template \tcode{f} with one parameter whose
+type is \tcode{T} (\ref{dcl.spec.auto.deduct}).
 % 
 The constraint is satisfied if the resolution of the function call 
 \tcode{f(E)} succeeds (\ref{over.match}).
@@ -417,10 +417,10 @@ template<C2 T> void g(T);
 
 g((int*)nullptr); // error: constraints not satisfied.
 \end{codeblock}
-The invented abbreviated function template \tcode{f} for the 
+The invented function template \tcode{f} for the
 \grammarterm{compound-requirement} in \tcode{C2} is:
 \begin{codeblock}
-void f(Pair<C1&, auto>);
+template<C1 T1, typename T2> void f(Pair<T1&, T2>);
 \end{codeblock}
 In the call \tcode{g((int*)nullptr)}, the constraints are not satisfied 
 because no values can be deduced for the placeholders \tcode{C1} and 
@@ -556,11 +556,8 @@ an expression:
 
 \pnum
 Constraints can also be associated with a declaration through the use of 
-\grammarterm{template-introduction}{}s, 
 \grammarterm{constrained-parameter}{}s in a 
-\grammarterm{template-parameter-list}, and
-\grammarterm{constrained-type-specifier}{}s in the parameter-type-list
-of a function template.
+\grammarterm{template-parameter-list}.
 % 
 Each of these forms introduces additional \grammarterm{constraint-expression}{s} 
 that are used to constrain the declaration.
@@ -581,9 +578,6 @@ that is the associated constraint.
 AND expression (\cxxref{expr.log.and}) whose operands are in the following order:
 % 
 \begin{itemize}
-\item the \grammarterm{constraint-expression} introduced by
-      a \grammarterm{template-introduction} (\ref{temp.intro}), and
-
 \item the \grammarterm{constraint-expression} introduced by each
       \grammarterm{constrained-parameter} (\ref{temp.param}) in the 
       declaration's \grammarterm{template-parameter-list}, in
@@ -592,11 +586,6 @@ AND expression (\cxxref{expr.log.and}) whose operands are in the following order
 \item the \grammarterm{constraint-expression} introduced
       by a \grammarterm{requires-clause} following a 
       \grammarterm{template-parameter-list} (Clause~\ref{temp}), and
-
-\item the \grammarterm{constraint-expression} introduced by each 
-      \grammarterm{constrained-type-specifier} (\ref{dcl.spec.auto.constr}) 
-      in the type of a \grammarterm{parameter-declaration} in a 
-      function declaration (\ref{dcl.fct}), in order of appearance, and
 
 \item the \grammarterm{constraint-expression} of a trailing 
       \grammarterm{requires-clause} (Clause~\ref{dcl.decl}) 
@@ -627,9 +616,7 @@ ill-formed, no diagnostic required.
 \begin{codeblock}
 template<typename T> concept bool C = true;
 
-void f1(C);
 template<C T> void f1(T);
-C{T} void f1(T);
 template<typename T> requires C<T> void f1(T);
 template<typename T> void f1(T) requires C<T>;
 \end{codeblock}
@@ -922,7 +909,6 @@ Concept resolution is performed when such a name appears
 \begin{itemize}
 \item as a \grammarterm{constrained-type-specifier} (\ref{dcl.spec.auto.constr}), 
 \item in a \grammarterm{constrained-parameter} (\ref{temp.param}),
-\item in a \grammarterm{template-introduction} (\ref{temp.intro}), or
 \item within a \grammarterm{constraint-expression} (\ref{temp.constr.decl}).
 \end{itemize}
 Within such a name, let \tcode{C} be the \grammarterm{concept-name} or
@@ -955,11 +941,6 @@ then
   single wildcard followed by the \grammarterm{template-argument}{s} of that 
   \grammarterm{partial-concept-id}.
   \end{itemize}
-
-\item If \tcode{C} is the \grammarterm{concept-name} in a
-\grammarterm{template-introduction}. the concept argument list is a sequence 
-of wildcards of the same length as the \grammarterm{introduction-list} of
-the \grammarterm{template-introduction}.
 
 \item If \tcode{C} appears as a \grammarterm{template-name} of a
 \grammarterm{simple-template-id}, the concept argument list is the sequence of
@@ -1013,16 +994,16 @@ template<typename T> concept bool C2() { return true; }
 template<int T> concept bool C2() { return true; }
 template<typename... Ts> concept bool C3 = true;
 
-void f1(const C1*); // OK: \tcode{C1} selects \#1
-void f2(C1<char>);  // OK: \tcode{C1<char>} selects \#2
+template<C1 T> void f1(const T*); // OK: \tcode{C1} selects \#1
+template<C1<char> T> void f2(T);  // OK: \tcode{C1<char>} selects \#2
 
 template<C2<0> T> struct S1; // error: no matching concept for \tcode{C2<0>},
                              // mismatched template arguments
 template<C2 T> struct S2;    // error: resolution of \tcode{C2} is ambiguous,
                              // both concepts are viable
 
-C3{...Ts} void q1(); // OK: selects \tcode{C3}
-C3{T} void q2();     // OK: selects \tcode{C3}
+template<C3... Ts> void q1(); // OK: selects \tcode{C3}
+template<C3 T> void q2();     // OK: selects \tcode{C3}
 \end{codeblock}
 \exitexample
 
