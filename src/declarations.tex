@@ -227,59 +227,14 @@ void f(const auto&, int); // OK: an abbreviated function template
 \end{quote}
 
 
-Add the following after paragraph 3 to describe when 
-\grammarterm{constrained-type-specifier}{}s in the return type 
-refer to template parameters.
-
-\begin{quote}
-\begin{addedblock}
-\pnum
-A \grammarterm{constrained-type-specifier} \tcode{C1} within the declared 
-return type of an abbreviated function template declaration does not 
-designate a placeholder if its introduced
-\grammarterm{constraint-expression} (\ref{dcl.spec.auto.constr}) 
-is determined to be equivalent, using the rules in \ref{temp.over.link}
-for comparing expressions, to the introduced 
-\grammarterm{constraint-expression} for a
-\grammarterm{constrained-type-specifier} \tcode{C2} in the 
-\grammarterm{parameter-declaration-clause} of that function declaration.
-% 
-Instead, \tcode{C1} is replaced by the template parameter invented for
-\tcode{C2} (\ref{dcl.fct}).
-\enterexample
-\begin{codeblock}
-template<typename T> concept bool C = true;
-
-template<typename... T> struct Tuple;
-
-C const& f1(C);      // has one template parameter and no deduced return type
-Tuple<C...> f2(C);   // has one template parameter and a deduced return type
-\end{codeblock}
-In the declaration \tcode{f1}, the \grammarterm{constraint-expression} 
-introduced by the \grammarterm{constrained-type-specifier}{}s in the
-\grammarterm{parameter-declaration-clause} and return type are equivalent
-; they would both introduce the expression \tcode{C<T>}, for some invented 
-template parameter \tcode{T}.
-% 
-In \tcode{f2}, the use of \tcode{C} in the return type would introduce the
-\grammarterm{constraint-expression} \tcode{(C<T> \&\& ...)}, which is 
-distinct from the \grammarterm{constraint-expression} \tcode{C<T>} introduced
-by the invented \grammarterm{constrained-parameter} (\ref{temp.param}) for 
-the \grammarterm{constrained-type-specifier} in the 
-\grammarterm{parameter-declaration-clause} according to the rules in 
-\ref{dcl.fct}.
-\exitexample
-\end{addedblock}
-\end{quote}
-
-
-Add the following after paragraph 4 to allow the use of \tcode{auto} in the
+Add the following after paragraph 3 to allow the use of \tcode{auto} in the
 \grammarterm{trailing-return-type} of a \grammarterm{compound-requirement}.
 Also, disallow the use of \tcode{decltype(auto)} with function parameters
 and deduction constraints.
 
 \begin{quote}
 \begin{addedblock}
+\setcounter{Paras}{3}
 \pnum
 If a placeholder appears in the \grammarterm{trailing-return-type}
 of a \grammarterm{compound-requirement} in a \grammarterm{requires-expression} 
@@ -304,7 +259,7 @@ in the declared type of a \grammarterm{parameter-declaration} or the
 \end{quote}
 
 
-Modify paragraph 4 in the \Cpp Standard (paragraph 7, here) to allow multiple 
+Modify paragraph 4 in the \Cpp Standard (paragraph 6, here) to allow multiple 
 placeholders within a variable declaration.
 
 \begin{quote}
@@ -382,6 +337,7 @@ Update paragraph 6 in the \Cpp Standard (paragraph 8, here) to disallow
 placeholders in other contexts.
 
 \begin{quote}
+\setcounter{Paras}{7}
 \pnum
 A program that uses \removed{\tcode{auto} or \tcode{decltype(auto)}}
 \added{placeholders} in a context not explicitly allowed in this section is 
@@ -561,6 +517,7 @@ or with an operand of type \tcode{void},
 % \tcode{T} shall be either \tcode{decltype(auto)}, \tcode{auto}, or a
 % \grammarterm{constrained-type-specifier}.}
 
+\setcounter{Paras}{3}
 \pnum
 If the placeholder is the \tcode{auto} \grammarterm{type-specifier}
 \added{or a \grammarterm{constrained-type-specifier}}, the deduced type
@@ -713,10 +670,10 @@ auto cf(int) -> Pair<C, C> { return expr; }
 The return type of \tcode{cf} is deduced from the parameter \tcode{p2} in the
 call \tcode{f2(expr)} of the following invented function:
 \begin{codeblock}
-template<C T> void f2(Pair<T, T>);
+template<C T1, C T2> void f2(Pair<T1, T2> p2);
 \end{codeblock}
 Both \grammarterm{constrained-type-specifier}{}s in the return type of 
-\tcode{cf} correspond to the same invented template parameter.
+\tcode{cf} correspond to different invented template parameters.
 \exitexample
 \end{addedblock}
 \end{quote}
